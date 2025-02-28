@@ -1,41 +1,29 @@
 const express = require("express");
-const axios = require("axios");
-const cheerio = require("cheerio");
 const cors = require("cors");
+const mongoose = require("mongoose");
+const scheduleRoutes = require("./routes/scheduleRoutes");
+const userRoutes = require("./routes/userRoutes"); // User routes
 
 const app = express();
-app.use(cors()); // Enable CORS for React frontend
+
+// Middleware
+app.use(cors());  // Enable CORS for React frontend
+app.use(express.json());  // Parse incoming JSON requests
 
 const PORT = 5001;
-const WFA_URL = "https://wfaprofootball.com/2025-schedule/"; // WFA schedule page
+
+// Connect to MongoDB (for user data)
+mongoose.connect("mongodb://localhost:27017/sheplaysfootball")
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.log("MongoDB connection error:", err));
 
 // Favicon route (avoids warning)
-app.get('/favicon.ico', (req, res) => res.status(204));
+app.get("/favicon.ico", (req, res) => res.status(204));
 
-app.get("/api/games", async (req, res) => {
-  try {
-    // Fetch the website's HTML
-    const { data } = await axios.get(WFA_URL);
-    const $ = cheerio.load(data);
+// Use the user routes
+app.use("/api/", userRoutes);  // Add user-related routes
 
-    let games = [];
-
-    // Find game details on the page (adjust selectors based on site structure)
-    $("td.data-event").each((index, element) => {
-      const teams = $(element).text().trim(); // Event (teams) from data-event
-      const date = $(element).closest('tr').find("td.data-date").text().trim(); // Date from data-date
-
-      // Ensure both teams and date are found before pushing to the array
-      if (teams && date) {
-        games.push({ teams, date });
-      }
-    });
-
-    res.json({ games });
-  } catch (error) {
-    console.error("Error scraping games:", error.message);
-    res.status(500).json({ error: "Failed to fetch games", details: error.message });
-  }
-});
+// Use schedule routes
+app.use("/api", scheduleRoutes);  // Add schedule routes
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
