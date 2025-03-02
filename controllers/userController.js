@@ -1,32 +1,39 @@
 const User = require("../models/userModel");
 
-// Register a new user
 const registerUser = async (req, res) => {
-  const { email, password, full_name, username } = req.body;
+  const { email, password, full_name, username, role } = req.body;
 
   try {
+    // Ensure all fields are provided
+    if (!email || !password || !full_name || !username || !role) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
     // Check if user already exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Create new user
-    const user = new User({
+    // Create the new user
+    const newUser = new User({
       email,
-      password,  // Store plain password (not recommended, consider using bcrypt)
+      password,
       full_name,
       username,
+      role, // Add the role to the new user document
     });
 
-    // Save user to the database
-    await user.save();
+    // Save the user to the database
+    await newUser.save();
 
-    res.status(201).json({ message: "User registered successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(201).json({ message: "User registered successfully", user: newUser });
+  } catch (err) {
+    console.error("Error registering user:", err);
+    return res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // Login user
 const loginUser = async (req, res) => {
