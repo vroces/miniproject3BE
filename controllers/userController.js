@@ -21,7 +21,8 @@ const registerUser = async (req, res) => {
       password,
       full_name,
       username,
-      role, // Add the role to the new user document
+      role: req.body.role.charAt(0).toUpperCase() + req.body.role.slice(1)
+
     });
 
     // Save the user to the database

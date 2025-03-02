@@ -4,15 +4,15 @@ const { registerUser, loginUser, updateUser, getUserById } = require("../control
 const router = express.Router();
 
 // Register route
-router.post("/auth/register", registerUser);
+router.post("/register", registerUser);
 
 // Login route
-router.post("/auth/login", loginUser);
+router.post("/login", loginUser);
 
 // Update user route
-router.put("/auth/update/:userId", updateUser);
+router.put("/update/:userId", updateUser);
 
 // Get user by ID route
-router.get("/auth/user/:userId", getUserById);
+router.get("/user/:userId", getUserById);
 
 module.exports = router;
