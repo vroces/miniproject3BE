@@ -90,18 +90,27 @@ const getAllFollowsForPlayer = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
-// Get all follows for a specific user
 const getAllFollowsForUser = async (req, res) => {
-  const { userId } = req.params;
-
+  const { userId } = req.params; // `userId` is the follower's ID
+  console.log("Received userId:", userId); // Log the received userId for debugging
   try {
-    const follows = await Follow.find({ follower_id: userId });
-    res.status(200).json(follows);
+    // Find all follows where the `follower_id` matches the provided `userId`
+    const follows = await Follow.find({ follower_id: userId }).populate('player_card_id');
+    
+    if (!follows || follows.length === 0) {
+      return res.status(404).json({ message: "No follows found for this user" });
+    }
+
+    // Return the player cards the user is following
+    const playerCards = follows.map(follow => follow.player_card_id);
+
+    res.status(200).json(playerCards); // Return the player cards
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+
 
 // Update exports to include the new functions
 module.exports = { followPlayerCard, unfollowPlayerCard, getAllFollows, getAllFollowsForPlayer, getAllFollowsForUser };

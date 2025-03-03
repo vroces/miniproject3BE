@@ -1,16 +1,21 @@
 const PlayerCard = require("../models/playerCardModel");
 const User = require("../models/userModel"); // Reference User model for user data
 
+
 // Create a new player card
 const createPlayerCard = async (req, res) => {
   const { profilePic, position, location, team, bio, user_id } = req.body;
+try {
+  // Ensure user_id is sent from the frontend
+  if (!user_id) {
+    return res.status(400).json({ message: "User ID is required" });
+  }
 
-  try {
-    // Check if the user already has a player card
-    const existingCard = await PlayerCard.findOne({ user_id });
-    if (existingCard) {
-      return res.status(400).json({ message: "Player card already exists" });
-    }
+  // Check if the user already has a player card
+  const existingCard = await PlayerCard.findOne({ user_id });
+  if (existingCard) {
+    return res.status(400).json({ message: "Player card already exists" });
+  }
 
     // Create new player card
     const newPlayerCard = new PlayerCard({

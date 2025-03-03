@@ -25,4 +25,6 @@ router.get("/user/:userId", getAllFollowsForUser);
 // Get all follows 
 router.get("/", getAllFollows);
 
+
+
 module.exports = router;
